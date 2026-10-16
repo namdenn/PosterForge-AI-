@@ -28,20 +28,20 @@ from poster_agent.graph.nodes.render_nodes import (
     technical_qa,
 )
 from poster_agent.graph.nodes.save_render import make_save_render_node
-from poster_agent.graph.sprint3_routing import (
+from poster_agent.graph.render_routing import (
     route_after_background_reviews,
     route_after_diversity,
     route_after_load,
     route_after_render_reviews,
 )
-from poster_agent.graph.sprint3_state import Sprint3State
+from poster_agent.graph.render_state import renderState
 from poster_agent.llm.design_gateway import DesignGenerator, VisualLayoutRefiner
 from poster_agent.llm.image_gateway import ImageGenerator, VisualReviewer
 from poster_agent.persistence.render_store import RenderArtifactStore
 from poster_agent.rendering.compositor import PosterCompositor
 
 
-def build_sprint3_graph(
+def build_render_graph(
     *,
     image_generator: ImageGenerator,
     design_generator: DesignGenerator,
@@ -53,25 +53,25 @@ def build_sprint3_graph(
 ) -> Any:
     """Compile dynamic creative direction, three concepts, rendering, and quality gates."""
 
-    builder: StateGraph[Sprint3State, None, Sprint3State, Sprint3State] = StateGraph(Sprint3State)
-    builder.add_node("load_blueprint", cast(Any, load_blueprint), input_schema=Sprint3State)
+    builder: StateGraph[renderState, None, renderState, renderState] = StateGraph(renderState)
+    builder.add_node("load_blueprint", cast(Any, load_blueprint), input_schema=renderState)
     builder.add_node(
         "load_and_resolve_assets",
         cast(Any, load_and_resolve_assets),
-        input_schema=Sprint3State,
+        input_schema=renderState,
     )
     builder.add_node("begin_design_attempt", begin_design_attempt)
     builder.add_node(
         "creative_territory_director",
         cast(Any, make_territory_director(design_generator)),
-        input_schema=Sprint3State,
+        input_schema=renderState,
     )
     concept_nodes = ["concept_agent_a", "concept_agent_b", "concept_agent_c"]
     for index, name in enumerate(concept_nodes):
         builder.add_node(
             name,
             cast(Any, make_concept_agent(index=index, generator=design_generator)),
-            input_schema=Sprint3State,
+            input_schema=renderState,
         )
     builder.add_node("join_design_concepts", join_design_concepts)
     builder.add_node("begin_render_attempt", begin_render_attempt)
@@ -81,7 +81,7 @@ def build_sprint3_graph(
         builder.add_node(
             name,
             cast(Any, make_variant_node(index=index, generator=image_generator)),
-            input_schema=Sprint3State,
+            input_schema=renderState,
         )
     builder.add_node("join_generated_candidates", join_generated_candidates)
     builder.add_node("begin_layout_attempt", begin_layout_attempt)
@@ -90,29 +90,29 @@ def build_sprint3_graph(
         builder.add_node(
             name,
             cast(Any, make_artwork_layout_node(index=index, refiner=layout_refiner)),
-            input_schema=Sprint3State,
+            input_schema=renderState,
         )
     builder.add_node("join_artwork_layouts", join_artwork_layouts)
     builder.add_node(
         "compose_candidates",
         cast(Any, make_compose_node(compositor)),
-        input_schema=Sprint3State,
+        input_schema=renderState,
     )
 
     builder.add_node("brand_qa", brand_qa)
     builder.add_node("content_qa", content_qa)
     builder.add_node("layout_qa", layout_qa)
-    builder.add_node("technical_qa", cast(Any, technical_qa), input_schema=Sprint3State)
+    builder.add_node("technical_qa", cast(Any, technical_qa), input_schema=renderState)
     builder.add_node(
         "visual_qa",
         cast(Any, make_visual_qa_node(visual_reviewer)),
-        input_schema=Sprint3State,
+        input_schema=renderState,
     )
     builder.add_node("join_quality_reviews", join_quality_reviews)
     builder.add_node(
         "save_render",
         cast(Any, make_save_render_node(artifact_store)),
-        input_schema=Sprint3State,
+        input_schema=renderState,
     )
 
     builder.add_edge(START, "load_blueprint")

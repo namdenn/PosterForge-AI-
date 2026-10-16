@@ -26,7 +26,7 @@ from poster_agent.domain.render import (
 from poster_agent.llm.gateway import GenerationMetadata
 
 
-class Sprint3State(TypedDict, total=False):
+class renderState(TypedDict, total=False):
     """Parallel render branches own unique candidate and review keys."""
 
     workflow_version: str

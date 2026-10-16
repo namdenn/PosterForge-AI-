@@ -1,6 +1,6 @@
-# Sprint 2 — implemented RAG and multi-parallel workflow
+# RAG and multi-parallel workflow
 
-Sprint 2 turns a campaign brief plus tenant-scoped enterprise documents into a reviewed
+This instruction turns a campaign brief plus tenant-scoped enterprise documents into a reviewed
 `CreativeBlueprint`. The current terminal adapter stores embeddings in SQLite and performs cosine
 ranking in application code. Ports allow a later pgvector or managed vector database adapter
 without changing graph nodes.
@@ -120,9 +120,3 @@ checks the item count, word budget, exact headline, and exact CTA before approva
 - response IDs and token usage for each GPT specialist;
 - final status (`completed` or `needs_review`).
 
-## Production boundary
-
-SQLite is appropriate for this local terminal sprint. Before running concurrent workers, replace
-the knowledge and checkpoint adapters with PostgreSQL/pgvector or another transactional vector
-store, add authorization-derived tenant identity, and never trust `tenant_id` supplied directly by
-an external client.

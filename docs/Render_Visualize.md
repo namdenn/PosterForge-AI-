@@ -1,6 +1,6 @@
-# Sprint 3.5 — autonomous creative composition
+# Autonomous creative composition
 
-Sprint 3.5 consumes an approved Sprint 2 `creative_blueprint.json` and the brand's exact asset
+This doc will explain how the agent consumes an approved `creative_blueprint.json` and the brand's exact asset
 manifest. It has no campaign layout templates or hard-coded poster coordinates.
 
 The design model decides the creative metaphor, hierarchy, artwork, typography treatment, and
@@ -77,7 +77,7 @@ flowchart TD
 - A supplied official font remains available as `brand`; otherwise concept agents may choose from
   the supported professional system-font families.
 - Headline and CTA are taken from the approved campaign data.
-- Supporting copy must first be generated and approved by Sprint 2 from RAG evidence.
+- Supporting copy must first be generated and approved from RAG evidence.
 - Scene layers must remain inside the canvas and foreground layers may not overlap.
 - Composition preserves the generated candidate as the visible key visual. It overlays only exact
   copy, the approved logo, and an optional approved product asset; old checkpoint shape layers are

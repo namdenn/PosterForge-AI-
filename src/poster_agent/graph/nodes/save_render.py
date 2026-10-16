@@ -6,14 +6,14 @@ from typing import Any
 
 from poster_agent.domain.enums import ApprovalStatus, RenderStatus
 from poster_agent.domain.render import RenderManifest
-from poster_agent.graph.sprint3_state import Sprint3State
+from poster_agent.graph.render_state import renderState
 from poster_agent.persistence.render_store import RenderArtifactStore
 
-GraphNode = Callable[[Sprint3State], Coroutine[Any, Any, Sprint3State]]
+GraphNode = Callable[[renderState], Coroutine[Any, Any, renderState]]
 
 
 def make_save_render_node(store: RenderArtifactStore) -> GraphNode:
-    async def save_render(state: Sprint3State) -> Sprint3State:
+    async def save_render(state: renderState) -> renderState:
         selection = state["selection"]
         status = (
             RenderStatus.COMPLETED

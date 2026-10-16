@@ -6,17 +6,17 @@ from typing import Any
 from poster_agent.domain.blueprint import ContextBundle
 from poster_agent.domain.enums import CampaignStatus, MarketingChannel
 from poster_agent.domain.errors import BrandKnowledgeNotFound
-from poster_agent.graph.sprint2_state import Sprint2State
+from poster_agent.graph.rag_state import ragState
 from poster_agent.rag.retrieval import BrandRetriever
 from poster_agent.rag.store import BrandKnowledgeStore
 
-GraphNode = Callable[[Sprint2State], Coroutine[Any, Any, Sprint2State]]
+GraphNode = Callable[[ragState], Coroutine[Any, Any, ragState]]
 
 
 def make_brand_context_node(
     *, store: BrandKnowledgeStore, retriever: BrandRetriever, top_k: int
 ) -> GraphNode:
-    async def brand_context(state: Sprint2State) -> Sprint2State:
+    async def brand_context(state: ragState) -> ragState:
         brief = state["brief"]
         profile = await store.get_profile(tenant_id=brief.tenant_id, brand_id=brief.brand_id)
         if profile is None:
@@ -37,7 +37,7 @@ def make_brand_context_node(
 
 
 def make_product_context_node(*, retriever: BrandRetriever, top_k: int) -> GraphNode:
-    async def product_context(state: Sprint2State) -> Sprint2State:
+    async def product_context(state: ragState) -> ragState:
         brief = state["brief"]
         evidence = await retriever.retrieve(
             tenant_id=brief.tenant_id,
@@ -54,7 +54,7 @@ def make_product_context_node(*, retriever: BrandRetriever, top_k: int) -> Graph
 
 
 def make_audience_context_node(*, retriever: BrandRetriever, top_k: int) -> GraphNode:
-    async def audience_context(state: Sprint2State) -> Sprint2State:
+    async def audience_context(state: ragState) -> ragState:
         brief = state["brief"]
         audience = ", ".join(brief.target_audience)
         evidence = await retriever.retrieve(
@@ -68,7 +68,7 @@ def make_audience_context_node(*, retriever: BrandRetriever, top_k: int) -> Grap
     return audience_context
 
 
-def channel_context(state: Sprint2State) -> Sprint2State:
+def channel_context(state: ragState) -> ragState:
     """Provide stable channel constraints without spending an LLM call."""
 
     channel = state["brief"].channel
@@ -113,7 +113,7 @@ def channel_context(state: Sprint2State) -> Sprint2State:
     return {"channel_guidance": [*shared, *channel_rules[channel]]}
 
 
-def context_join(state: Sprint2State) -> Sprint2State:
+def context_join(state: ragState) -> ragState:
     brief = state["brief"]
     evidence = [
         *state["brand_evidence"],

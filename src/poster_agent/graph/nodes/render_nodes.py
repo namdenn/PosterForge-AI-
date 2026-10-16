@@ -22,15 +22,15 @@ from poster_agent.domain.render import (
     RenderSelection,
 )
 from poster_agent.graph.nodes.design_nodes import validate_concept
-from poster_agent.graph.sprint3_state import Sprint3State
+from poster_agent.graph.render_state import renderState
 from poster_agent.llm.design_gateway import VisualLayoutRefiner
 from poster_agent.llm.image_gateway import ImageGenerationRequest, ImageGenerator, VisualReviewer
 from poster_agent.rendering.compositor import PosterCompositor
 
-GraphNode = Callable[[Sprint3State], Coroutine[Any, Any, Sprint3State]]
+GraphNode = Callable[[renderState], Coroutine[Any, Any, renderState]]
 
 
-async def load_blueprint(state: Sprint3State) -> Sprint3State:
+async def load_blueprint(state: renderState) -> renderState:
     """Load the exact Sprint 2 wrapper and reject unapproved creative work."""
 
     path = Path(state["blueprint_path"])
@@ -71,7 +71,7 @@ async def load_blueprint(state: Sprint3State) -> Sprint3State:
     }
 
 
-async def load_and_resolve_assets(state: Sprint3State) -> Sprint3State:
+async def load_and_resolve_assets(state: renderState) -> renderState:
     manifest_path = Path(state["asset_manifest_path"])
     manifest = await load_asset_manifest(manifest_path)
     brief = state["brief"]
@@ -85,7 +85,7 @@ async def load_and_resolve_assets(state: Sprint3State) -> Sprint3State:
     return {"asset_manifest": manifest, "resolved_assets": assets}
 
 
-def begin_render_attempt(state: Sprint3State) -> Sprint3State:
+def begin_render_attempt(state: renderState) -> renderState:
     return {
         "render_attempt": state.get("render_attempt", 0) + 1,
         "layout_attempt": 0,
@@ -93,7 +93,7 @@ def begin_render_attempt(state: Sprint3State) -> Sprint3State:
     }
 
 
-def begin_layout_attempt(state: Sprint3State) -> Sprint3State:
+def begin_layout_attempt(state: renderState) -> renderState:
     return {
         "layout_attempt": state.get("layout_attempt", 0) + 1,
         "status": RenderStatus.RENDERING,
@@ -101,7 +101,7 @@ def begin_layout_attempt(state: Sprint3State) -> Sprint3State:
 
 
 def make_variant_node(*, index: int, generator: ImageGenerator) -> GraphNode:
-    async def render_variant(state: Sprint3State) -> Sprint3State:
+    async def render_variant(state: renderState) -> renderState:
         config = state["render_config"]
         if index >= config.variant_count:
             if index == 0:
@@ -190,7 +190,7 @@ def make_variant_node(*, index: int, generator: ImageGenerator) -> GraphNode:
     return render_variant
 
 
-def join_generated_candidates(state: Sprint3State) -> Sprint3State:
+def join_generated_candidates(state: renderState) -> renderState:
     candidates = [
         item
         for item in (state.get("candidate_a"), state.get("candidate_b"), state.get("candidate_c"))
@@ -204,7 +204,7 @@ def join_generated_candidates(state: Sprint3State) -> Sprint3State:
 def make_artwork_layout_node(*, index: int, refiner: VisualLayoutRefiner) -> GraphNode:
     """Inspect one generated variant and design its overlay against actual visible content."""
 
-    async def artwork_layout(state: Sprint3State) -> Sprint3State:
+    async def artwork_layout(state: renderState) -> renderState:
         candidate = _candidate_at(state, index=index)
         active_candidate_ids = {item.candidate_id for item in state.get("generated_candidates", [])}
         if candidate is None or candidate.candidate_id not in active_candidate_ids:
@@ -269,7 +269,7 @@ def make_artwork_layout_node(*, index: int, refiner: VisualLayoutRefiner) -> Gra
     return artwork_layout
 
 
-def _candidate_at(state: Sprint3State, *, index: int) -> GeneratedCandidate | None:
+def _candidate_at(state: renderState, *, index: int) -> GeneratedCandidate | None:
     if index == 0:
         return state.get("candidate_a")
     if index == 1:
@@ -284,8 +284,8 @@ def _layout_branch_result(
     concept: DesignConcept | None = None,
     report: QualityReport | None = None,
     metadata: list[Any] | None = None,
-) -> Sprint3State:
-    shared: Sprint3State = {"design_generation_metadata": metadata or []}
+) -> renderState:
+    shared: renderState = {"design_generation_metadata": metadata or []}
     if index == 0:
         shared.update(
             {
@@ -313,7 +313,7 @@ def _layout_branch_result(
     return shared
 
 
-def join_artwork_layouts(state: Sprint3State) -> Sprint3State:
+def join_artwork_layouts(state: renderState) -> renderState:
     """Keep valid artwork and replace guessed overlays with image-grounded layouts."""
 
     reports = [
@@ -371,7 +371,7 @@ def join_artwork_layouts(state: Sprint3State) -> Sprint3State:
 
 
 def _validate_refined_overlay(
-    *, original: DesignConcept, refined: DesignConcept, state: Sprint3State
+    *, original: DesignConcept, refined: DesignConcept, state: renderState
 ) -> None:
     original_has_product = any(layer.layer_type == "approved_product" for layer in original.layers)
     refined_has_product = any(layer.layer_type == "approved_product" for layer in refined.layers)
@@ -407,7 +407,7 @@ def _validate_refined_overlay(
 
 
 def make_compose_node(compositor: PosterCompositor) -> GraphNode:
-    async def compose_candidates(state: Sprint3State) -> Sprint3State:
+    async def compose_candidates(state: renderState) -> renderState:
         attempt = state["render_attempt"]
         work_dir = Path(state["render_work_dir"])
         composed = await asyncio.gather(
@@ -434,7 +434,7 @@ def make_compose_node(compositor: PosterCompositor) -> GraphNode:
     return compose_candidates
 
 
-def brand_qa(state: Sprint3State) -> Sprint3State:
+def brand_qa(state: renderState) -> renderState:
     reports = []
     for candidate in state["composed_candidates"]:
         concept = next(
@@ -467,7 +467,7 @@ def brand_qa(state: Sprint3State) -> Sprint3State:
     return {"brand_qa": reports}
 
 
-def content_qa(state: Sprint3State) -> Sprint3State:
+def content_qa(state: renderState) -> renderState:
     plan = state["render_plan"]
     forbidden = [item.casefold() for item in state["blueprint"].brand_profile.forbidden_claims]
     reports = []
@@ -500,7 +500,7 @@ def content_qa(state: Sprint3State) -> Sprint3State:
     return {"content_qa": reports}
 
 
-def layout_qa(state: Sprint3State) -> Sprint3State:
+def layout_qa(state: renderState) -> renderState:
     """Validate agent-authored geometry without imposing a reusable visual template."""
 
     reports = []
@@ -553,7 +553,7 @@ def layout_qa(state: Sprint3State) -> Sprint3State:
     return {"layout_qa": reports}
 
 
-async def technical_qa(state: Sprint3State) -> Sprint3State:
+async def technical_qa(state: renderState) -> renderState:
     expected = (state["render_config"].width, state["render_config"].height)
     reports = await asyncio.gather(
         *[
@@ -565,7 +565,7 @@ async def technical_qa(state: Sprint3State) -> Sprint3State:
 
 
 def make_visual_qa_node(reviewer: VisualReviewer) -> GraphNode:
-    async def visual_qa(state: Sprint3State) -> Sprint3State:
+    async def visual_qa(state: renderState) -> renderState:
         reports = await asyncio.gather(
             *[
                 reviewer.review(
@@ -581,7 +581,7 @@ def make_visual_qa_node(reviewer: VisualReviewer) -> GraphNode:
     return visual_qa
 
 
-def join_quality_reviews(state: Sprint3State) -> Sprint3State:
+def join_quality_reviews(state: renderState) -> renderState:
     reports = [
         *state["background_qa"],
         *state["brand_qa"],
@@ -671,7 +671,7 @@ def _inspect_candidate_sync(
     )
 
 
-def serialize_state_summary(state: Sprint3State) -> str:
+def serialize_state_summary(state: renderState) -> str:
     """Small helper used by CLI diagnostics without serializing image bytes."""
 
     selection = state.get("selection")

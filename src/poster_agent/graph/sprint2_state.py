@@ -18,7 +18,7 @@ from poster_agent.domain.enums import CampaignStatus
 from poster_agent.llm.gateway import GenerationMetadata
 
 
-class Sprint2State(TypedDict, total=False):
+class ragState(TypedDict, total=False):
     """Each parallel branch owns unique keys; metadata uses an explicit reducer."""
 
     workflow_version: str

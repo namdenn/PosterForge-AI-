@@ -67,13 +67,13 @@ Typer, or LlamaIndex.
 - `state.py`: the checkpointed contract shared by all nodes.
 - `routing.py`: pure branch decisions; no I/O and no API calls.
 - `builder.py`: registers nodes and edges and compiles the graph with injected adapters.
-- `sprint2_state.py`: multi-agent state and the reducer for parallel generation metadata.
-- `sprint2_builder.py`: three-stage fan-out/fan-in graph composition.
-- `sprint2_routing.py`: bounded automated-review retry decisions.
-- `sprint3_state.py`: durable state for candidates, reviews, selection, and final artifacts.
-- `sprint3_builder.py`: dynamic director, three parallel concept/image agents, and five parallel
+- `rag_state.py`: multi-agent state and the reducer for parallel generation metadata.
+- `rag_builder.py`: three-stage fan-out/fan-in graph composition.
+- `rag_routing.py`: bounded automated-review retry decisions.
+- `render_state.py`: durable state for candidates, reviews, selection, and final artifacts.
+- `render_builder.py`: dynamic director, three parallel concept/image agents, and five parallel
   quality gates.
-- `sprint3_routing.py`: bounded render revision decisions.
+- `render_routing.py`: bounded render revision decisions.
 - `__init__.py`: public graph exports.
 
 #### `graph/nodes`

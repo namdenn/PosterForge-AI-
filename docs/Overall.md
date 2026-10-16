@@ -1,4 +1,4 @@
-# Sprint 1 — terminal strategy workflow
+# Overview terminal strategy workflow
 
 ## Outcome
 

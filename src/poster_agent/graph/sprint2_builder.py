@@ -28,19 +28,19 @@ from poster_agent.graph.nodes.review_agents import (
 from poster_agent.graph.nodes.save_blueprint import make_save_blueprint_node
 from poster_agent.graph.nodes.synthesize_blueprint import synthesize_blueprint
 from poster_agent.graph.nodes.validate_brief import validate_brief
-from poster_agent.graph.sprint2_routing import route_after_reviews
-from poster_agent.graph.sprint2_state import Sprint2State
+from poster_agent.graph.rag_routing import route_after_reviews
+from poster_agent.graph.rag_state import ragState
 from poster_agent.llm.creative_gateway import CreativeGenerator
 from poster_agent.persistence.artifact_store import BlueprintArtifactStore
 from poster_agent.rag.retrieval import BrandRetriever
 from poster_agent.rag.store import BrandKnowledgeStore
 
 
-def _route_after_validation(state: Sprint2State) -> Literal["context", "stop"]:
+def _route_after_validation(state: ragState) -> Literal["context", "stop"]:
     return "stop" if state.get("validation_errors") else "context"
 
 
-def build_sprint2_graph(
+def build_rag_graph(
     *,
     generator: CreativeGenerator,
     retriever: BrandRetriever,
@@ -51,10 +51,10 @@ def build_sprint2_graph(
 ) -> Any:
     """Compile a graph with three explicit fan-out/fan-in stages."""
 
-    builder: StateGraph[Sprint2State, None, Sprint2State, Sprint2State] = StateGraph(Sprint2State)
-    builder.add_node("load_brief", cast(Any, load_brief), input_schema=Sprint2State)
-    builder.add_node("validate_brief", cast(Any, validate_brief), input_schema=Sprint2State)
-    builder.add_node("normalize_brief", cast(Any, normalize_brief), input_schema=Sprint2State)
+    builder: StateGraph[ragState, None, ragState, ragState] = StateGraph(ragState)
+    builder.add_node("load_brief", cast(Any, load_brief), input_schema=ragState)
+    builder.add_node("validate_brief", cast(Any, validate_brief), input_schema=ragState)
+    builder.add_node("normalize_brief", cast(Any, normalize_brief), input_schema=ragState)
 
     builder.add_node(
         "brand_context",
@@ -66,17 +66,17 @@ def build_sprint2_graph(
                 top_k=top_k,
             ),
         ),
-        input_schema=Sprint2State,
+        input_schema=ragState,
     )
     builder.add_node(
         "product_context",
         cast(Any, make_product_context_node(retriever=retriever, top_k=top_k)),
-        input_schema=Sprint2State,
+        input_schema=ragState,
     )
     builder.add_node(
         "audience_context",
         cast(Any, make_audience_context_node(retriever=retriever, top_k=top_k)),
-        input_schema=Sprint2State,
+        input_schema=ragState,
     )
     builder.add_node("channel_context", channel_context)
     builder.add_node("context_join", context_join)
@@ -85,17 +85,17 @@ def build_sprint2_graph(
     builder.add_node(
         "messaging_agent",
         cast(Any, make_messaging_agent(generator)),
-        input_schema=Sprint2State,
+        input_schema=ragState,
     )
     builder.add_node(
         "visual_agent",
         cast(Any, make_visual_agent(generator)),
-        input_schema=Sprint2State,
+        input_schema=ragState,
     )
     builder.add_node(
         "strategy_agent",
         cast(Any, make_strategy_agent(generator)),
-        input_schema=Sprint2State,
+        input_schema=ragState,
     )
     builder.add_node("synthesize_blueprint", synthesize_blueprint)
 
@@ -106,7 +106,7 @@ def build_sprint2_graph(
     builder.add_node(
         "save_blueprint",
         cast(Any, make_save_blueprint_node(artifact_store)),
-        input_schema=Sprint2State,
+        input_schema=ragState,
     )
 
     builder.add_edge(START, "load_brief")

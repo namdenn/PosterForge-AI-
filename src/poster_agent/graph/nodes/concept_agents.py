@@ -4,13 +4,13 @@ from collections.abc import Callable, Coroutine
 from typing import Any
 
 from poster_agent.domain.enums import CampaignStatus
-from poster_agent.graph.sprint2_state import Sprint2State
+from poster_agent.graph.rag_state import ragState
 from poster_agent.llm.creative_gateway import CreativeGenerator
 
-GraphNode = Callable[[Sprint2State], Coroutine[Any, Any, Sprint2State]]
+GraphNode = Callable[[ragState], Coroutine[Any, Any, ragState]]
 
 
-def begin_concept_attempt(state: Sprint2State) -> Sprint2State:
+def begin_concept_attempt(state: ragState) -> ragState:
     return {
         "concept_attempt": state.get("concept_attempt", 0) + 1,
         "status": CampaignStatus.RUNNING,
@@ -18,7 +18,7 @@ def begin_concept_attempt(state: Sprint2State) -> Sprint2State:
 
 
 def make_messaging_agent(generator: CreativeGenerator) -> GraphNode:
-    async def messaging_agent(state: Sprint2State) -> Sprint2State:
+    async def messaging_agent(state: ragState) -> ragState:
         proposal, metadata = await generator.generate_messaging(
             state["brief"],
             state["context_bundle"],
@@ -30,7 +30,7 @@ def make_messaging_agent(generator: CreativeGenerator) -> GraphNode:
 
 
 def make_visual_agent(generator: CreativeGenerator) -> GraphNode:
-    async def visual_agent(state: Sprint2State) -> Sprint2State:
+    async def visual_agent(state: ragState) -> ragState:
         proposal, metadata = await generator.generate_visual(
             state["brief"],
             state["context_bundle"],
@@ -42,7 +42,7 @@ def make_visual_agent(generator: CreativeGenerator) -> GraphNode:
 
 
 def make_strategy_agent(generator: CreativeGenerator) -> GraphNode:
-    async def strategy_agent(state: Sprint2State) -> Sprint2State:
+    async def strategy_agent(state: ragState) -> ragState:
         proposal, metadata = await generator.generate_strategy(
             state["brief"],
             state["context_bundle"],

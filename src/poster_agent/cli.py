@@ -26,10 +26,10 @@ from poster_agent.domain.errors import (
     PosterAgentError,
 )
 from poster_agent.domain.render import BlueprintArtifact, RenderConfig, RenderSelection
-from poster_agent.graph.sprint2_builder import build_sprint2_graph
-from poster_agent.graph.sprint2_state import Sprint2State
-from poster_agent.graph.sprint3_builder import build_sprint3_graph
-from poster_agent.graph.sprint3_state import Sprint3State
+from poster_agent.graph.rag_builder import build_rag_graph
+from poster_agent.graph.rag_state import ragState
+from poster_agent.graph.render_builder import build_render_graph
+from poster_agent.graph.render_state import renderState
 from poster_agent.llm.embedding_gateway import OpenAIEmbeddingGateway
 from poster_agent.llm.openai_creative_gateway import OpenAICreativeGenerator
 from poster_agent.llm.openai_design_gateway import OpenAIDesignGenerator
@@ -143,7 +143,7 @@ async def _run_campaign(
     retriever = SemanticBrandRetriever(store=knowledge_store, embedder=embedder)
     artifact_store = LocalArtifactStore(settings.artifacts_dir)
     async with sqlite_checkpointer(settings.checkpoint_db_path) as checkpointer:
-        graph = build_sprint2_graph(
+        graph = build_rag_graph(
             generator=generator,
             retriever=retriever,
             knowledge_store=knowledge_store,
@@ -156,7 +156,7 @@ async def _run_campaign(
             raise ConfigurationError(
                 f"Thread '{thread_id}' already exists. Use campaign resume or choose a new ID."
             )
-        initial: Sprint2State = {
+        initial: ragState = {
             "workflow_version": "2.0",
             "thread_id": thread_id,
             "brief_path": str(brief_path),
@@ -243,7 +243,7 @@ async def _resume_campaign(thread_id: str, settings: Settings) -> dict[str, Any]
             raise ConfigurationError(
                 "This checkpoint was created by another workflow version and cannot be resumed."
             )
-        graph = build_sprint2_graph(
+        graph = build_rag_graph(
             generator=generator,
             retriever=retriever,
             knowledge_store=knowledge_store,
@@ -308,7 +308,7 @@ async def _approve_campaign(
     await knowledge_store.setup()
     graph_config: RunnableConfig = {"configurable": {"thread_id": thread_id}}
     async with sqlite_checkpointer(settings.checkpoint_db_path) as checkpointer:
-        graph = build_sprint2_graph(
+        graph = build_rag_graph(
             generator=generator,
             retriever=SemanticBrandRetriever(store=knowledge_store, embedder=embedder),
             knowledge_store=knowledge_store,
@@ -503,7 +503,7 @@ def _build_render_graph(*, settings: Settings, checkpointer: Any) -> Any:
         model=settings.openai_model,
         timeout_seconds=max(settings.openai_timeout_seconds, 120.0),
     )
-    return build_sprint3_graph(
+    return build_render_graph(
         design_generator=design_generator,
         layout_refiner=design_generator,
         image_generator=OpenAIImageGenerator(
@@ -593,7 +593,7 @@ async def _run_render(
             raise ConfigurationError(
                 f"Render '{render_id}' already exists. Use render resume or choose a new ID."
             )
-        initial: Sprint3State = {
+        initial: renderState = {
             "workflow_version": "3.2",
             "render_id": render_id,
             "blueprint_path": str(resolved_blueprint),

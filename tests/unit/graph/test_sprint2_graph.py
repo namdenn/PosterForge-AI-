@@ -23,8 +23,8 @@ from poster_agent.domain.enums import (
     CampaignStatus,
     RiskSeverity,
 )
-from poster_agent.graph.sprint2_builder import build_sprint2_graph
-from poster_agent.graph.sprint2_state import Sprint2State
+from poster_agent.graph.rag_builder import build_rag_graph
+from poster_agent.graph.rag_state import ragState
 from poster_agent.llm.gateway import GenerationMetadata
 from poster_agent.persistence.artifact_store import LocalArtifactStore
 from poster_agent.rag.store import IndexedChunk
@@ -191,14 +191,14 @@ class FakeCreativeGenerator:
         )
 
 
-async def run_graph(tmp_path: Path, generator: FakeCreativeGenerator) -> Sprint2State:
+async def run_graph(tmp_path: Path, generator: FakeCreativeGenerator) -> ragState:
     brief_path = tmp_path / "brief.json"
     await asyncio.to_thread(
         brief_path.write_text,
         json.dumps(brief_payload()),
         encoding="utf-8",
     )
-    graph = build_sprint2_graph(
+    graph = build_rag_graph(
         generator=generator,
         retriever=FakeRetriever(),
         knowledge_store=FakeKnowledgeStore(),
@@ -206,7 +206,7 @@ async def run_graph(tmp_path: Path, generator: FakeCreativeGenerator) -> Sprint2
         checkpointer=InMemorySaver(),
         top_k=3,
     )
-    initial: Sprint2State = {
+    initial: ragState = {
         "thread_id": "sprint-2-thread",
         "brief_path": str(brief_path),
         "concept_attempt": 0,
@@ -214,7 +214,7 @@ async def run_graph(tmp_path: Path, generator: FakeCreativeGenerator) -> Sprint2
         "generation_metadata": [],
     }
     return cast(
-        Sprint2State,
+        ragState,
         await graph.ainvoke(
             initial,
             config={"configurable": {"thread_id": "sprint-2-thread"}},
@@ -222,7 +222,7 @@ async def run_graph(tmp_path: Path, generator: FakeCreativeGenerator) -> Sprint2
     )
 
 
-async def test_sprint2_graph_creates_approved_blueprint(tmp_path: Path) -> None:
+async def test_rag_graph_creates_approved_blueprint(tmp_path: Path) -> None:
     result = await run_graph(tmp_path, FakeCreativeGenerator())
 
     assert result["status"] == CampaignStatus.COMPLETED
@@ -237,7 +237,7 @@ async def test_sprint2_graph_creates_approved_blueprint(tmp_path: Path) -> None:
     assert await asyncio.to_thread(artifact_path.exists)
 
 
-async def test_sprint2_graph_retries_review_failure(tmp_path: Path) -> None:
+async def test_rag_graph_retries_review_failure(tmp_path: Path) -> None:
     generator = FakeCreativeGenerator(fail_first_message=True)
     result = await run_graph(tmp_path, generator)
 
@@ -254,7 +254,7 @@ async def test_human_approval_resumes_finished_review_thread(tmp_path: Path) -> 
         json.dumps(brief_payload()),
         encoding="utf-8",
     )
-    graph = build_sprint2_graph(
+    graph = build_rag_graph(
         generator=FakeCreativeGenerator(fail_first_message=True),
         retriever=FakeRetriever(),
         knowledge_store=FakeKnowledgeStore(),
@@ -262,7 +262,7 @@ async def test_human_approval_resumes_finished_review_thread(tmp_path: Path) -> 
         checkpointer=InMemorySaver(),
     )
     config: RunnableConfig = {"configurable": {"thread_id": "human-review"}}
-    initial: Sprint2State = {
+    initial: ragState = {
         "workflow_version": "2.0",
         "thread_id": "human-review",
         "brief_path": str(brief_path),
@@ -270,7 +270,7 @@ async def test_human_approval_resumes_finished_review_thread(tmp_path: Path) -> 
         "max_concept_attempts": 1,
         "generation_metadata": [],
     }
-    needs_review = cast(Sprint2State, await graph.ainvoke(initial, config=config))
+    needs_review = cast(ragState, await graph.ainvoke(initial, config=config))
     assert needs_review["status"] == CampaignStatus.NEEDS_REVIEW
 
     blueprint = needs_review["blueprint"]
@@ -295,7 +295,7 @@ async def test_human_approval_resumes_finished_review_thread(tmp_path: Path) -> 
         },
         as_node="review_join",
     )
-    completed = cast(Sprint2State, await graph.ainvoke(None, config=config))
+    completed = cast(ragState, await graph.ainvoke(None, config=config))
 
     assert completed["status"] == CampaignStatus.COMPLETED
     assert completed["blueprint"].approval_status == ApprovalStatus.APPROVED

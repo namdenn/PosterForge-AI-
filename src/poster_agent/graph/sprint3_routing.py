@@ -3,14 +3,14 @@
 from typing import Literal
 
 from poster_agent.domain.enums import ApprovalStatus
-from poster_agent.graph.sprint3_state import Sprint3State
+from poster_agent.graph.render_state import renderState
 
 
-def route_after_load(state: Sprint3State) -> Literal["continue", "stop"]:
+def route_after_load(state: renderState) -> Literal["continue", "stop"]:
     return "stop" if state.get("review_errors") else "continue"
 
 
-def route_after_diversity(state: Sprint3State) -> Literal["render", "retry"]:
+def route_after_diversity(state: renderState) -> Literal["render", "retry"]:
     if state["diversity_report"].passed:
         return "render"
     if state.get("design_attempt", 0) < state.get("max_design_attempts", 2):
@@ -18,7 +18,7 @@ def route_after_diversity(state: Sprint3State) -> Literal["render", "retry"]:
     return "render"
 
 
-def route_after_background_reviews(state: Sprint3State) -> Literal["compose", "retry"]:
+def route_after_background_reviews(state: renderState) -> Literal["compose", "retry"]:
     if not state.get("review_errors"):
         return "compose"
     if state.get("render_attempt", 0) < state["render_config"].max_render_attempts:
@@ -27,7 +27,7 @@ def route_after_background_reviews(state: Sprint3State) -> Literal["compose", "r
 
 
 def route_after_render_reviews(
-    state: Sprint3State,
+    state: renderState,
 ) -> Literal["save", "retry_layout", "retry_render", "retry_design"]:
     selection = state["selection"]
     if selection.approval_status == ApprovalStatus.APPROVED:

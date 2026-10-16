@@ -2,10 +2,10 @@
 
 from poster_agent.domain.blueprint import ReviewReport
 from poster_agent.domain.enums import ApprovalStatus, CampaignStatus, RiskSeverity
-from poster_agent.graph.sprint2_state import Sprint2State
+from poster_agent.graph.rag_state import ragState
 
 
-def brand_guard(state: Sprint2State) -> Sprint2State:
+def brand_guard(state: ragState) -> ragState:
     blueprint = state["blueprint"]
     profile = blueprint.brand_profile
     copy = " ".join(
@@ -57,7 +57,7 @@ def brand_guard(state: Sprint2State) -> Sprint2State:
     }
 
 
-def compliance_critic(state: Sprint2State) -> Sprint2State:
+def compliance_critic(state: ragState) -> ragState:
     brief = state["brief"]
     blueprint = state["blueprint"]
     issues: list[str] = []
@@ -115,7 +115,7 @@ def compliance_critic(state: Sprint2State) -> Sprint2State:
     }
 
 
-def feasibility_critic(state: Sprint2State) -> Sprint2State:
+def feasibility_critic(state: ragState) -> ragState:
     brief = state["brief"]
     blueprint = state["blueprint"]
     provided = {item.casefold() for item in blueprint.visual.mandatory_elements}
@@ -135,7 +135,7 @@ def feasibility_critic(state: Sprint2State) -> Sprint2State:
     }
 
 
-def review_join(state: Sprint2State) -> Sprint2State:
+def review_join(state: ragState) -> ragState:
     reports = [
         state["brand_review"],
         state["compliance_review"],

@@ -41,8 +41,8 @@ from poster_agent.domain.render import (
     TerritoryPortfolio,
 )
 from poster_agent.domain.strategy import VisualDirection
-from poster_agent.graph.sprint3_builder import build_sprint3_graph
-from poster_agent.graph.sprint3_state import Sprint3State
+from poster_agent.graph.render_builder import build_render_graph
+from poster_agent.graph.render_state import renderState
 from poster_agent.llm.gateway import GenerationMetadata
 from poster_agent.llm.image_gateway import ImageGenerationRequest
 from poster_agent.persistence.render_store import LocalRenderArtifactStore
@@ -468,10 +468,10 @@ async def _fixture_files(tmp_path: Path, *, approval: ApprovalStatus) -> tuple[P
     return blueprint_path, manifest_path
 
 
-async def test_sprint3_graph_creates_reviewed_poster(tmp_path: Path) -> None:
+async def test_render_graph_creates_reviewed_poster(tmp_path: Path) -> None:
     blueprint_path, manifest_path = await _fixture_files(tmp_path, approval=ApprovalStatus.APPROVED)
     image_generator = FakeImageGenerator()
-    graph = build_sprint3_graph(
+    graph = build_render_graph(
         design_generator=FakeDesignGenerator(),
         layout_refiner=FakeDesignGenerator(),
         image_generator=image_generator,
@@ -480,7 +480,7 @@ async def test_sprint3_graph_creates_reviewed_poster(tmp_path: Path) -> None:
         artifact_store=LocalRenderArtifactStore(),
         checkpointer=InMemorySaver(),
     )
-    initial: Sprint3State = {
+    initial: renderState = {
         "workflow_version": "3.1",
         "render_id": "render-1",
         "blueprint_path": str(blueprint_path),
@@ -494,7 +494,7 @@ async def test_sprint3_graph_creates_reviewed_poster(tmp_path: Path) -> None:
         "review_errors": [],
     }
     result = cast(
-        Sprint3State,
+        renderState,
         await graph.ainvoke(
             initial,
             config={"configurable": {"thread_id": "render:render-1"}},
@@ -528,11 +528,11 @@ async def test_sprint3_graph_creates_reviewed_poster(tmp_path: Path) -> None:
     assert all(not request.reference_paths for request in image_generator.requests)
 
 
-async def test_sprint3_rejects_unapproved_blueprint(tmp_path: Path) -> None:
+async def test_render_rejects_unapproved_blueprint(tmp_path: Path) -> None:
     blueprint_path, manifest_path = await _fixture_files(
         tmp_path, approval=ApprovalStatus.NEEDS_REVIEW
     )
-    graph = build_sprint3_graph(
+    graph = build_render_graph(
         design_generator=FakeDesignGenerator(),
         layout_refiner=FakeDesignGenerator(),
         image_generator=FakeImageGenerator(),
@@ -542,7 +542,7 @@ async def test_sprint3_rejects_unapproved_blueprint(tmp_path: Path) -> None:
         checkpointer=InMemorySaver(),
     )
     result = cast(
-        Sprint3State,
+        renderState,
         await graph.ainvoke(
             {
                 "workflow_version": "3.0",
@@ -562,10 +562,10 @@ async def test_sprint3_rejects_unapproved_blueprint(tmp_path: Path) -> None:
     assert "approved" in result["review_errors"][0]
 
 
-async def test_sprint3_keeps_failed_candidate_out_of_final_directory(tmp_path: Path) -> None:
+async def test_render_keeps_failed_candidate_out_of_final_directory(tmp_path: Path) -> None:
     blueprint_path, manifest_path = await _fixture_files(tmp_path, approval=ApprovalStatus.APPROVED)
     work_dir = tmp_path / "renders" / "render-needs-review"
-    graph = build_sprint3_graph(
+    graph = build_render_graph(
         design_generator=FakeDesignGenerator(),
         layout_refiner=FakeDesignGenerator(),
         image_generator=FakeImageGenerator(),
@@ -575,7 +575,7 @@ async def test_sprint3_keeps_failed_candidate_out_of_final_directory(tmp_path: P
         checkpointer=InMemorySaver(),
     )
     result = cast(
-        Sprint3State,
+        renderState,
         await graph.ainvoke(
             {
                 "workflow_version": "3.0",
@@ -598,11 +598,11 @@ async def test_sprint3_keeps_failed_candidate_out_of_final_directory(tmp_path: P
     assert not (work_dir / "final").exists()
 
 
-async def test_sprint3_retries_layout_without_regenerating_good_artwork(tmp_path: Path) -> None:
+async def test_render_retries_layout_without_regenerating_good_artwork(tmp_path: Path) -> None:
     blueprint_path, manifest_path = await _fixture_files(tmp_path, approval=ApprovalStatus.APPROVED)
     image_generator = FakeImageGenerator()
     reviewer = RetryCompositionReviewer()
-    graph = build_sprint3_graph(
+    graph = build_render_graph(
         design_generator=FakeDesignGenerator(),
         layout_refiner=FakeDesignGenerator(),
         image_generator=image_generator,
@@ -612,7 +612,7 @@ async def test_sprint3_retries_layout_without_regenerating_good_artwork(tmp_path
         checkpointer=InMemorySaver(),
     )
     result = cast(
-        Sprint3State,
+        renderState,
         await graph.ainvoke(
             {
                 "workflow_version": "3.2",
@@ -643,9 +643,9 @@ async def test_sprint3_retries_layout_without_regenerating_good_artwork(tmp_path
     assert reviewer.review_count == 2
 
 
-async def test_sprint3_retries_when_every_background_is_contaminated(tmp_path: Path) -> None:
+async def test_render_retries_when_every_background_is_contaminated(tmp_path: Path) -> None:
     blueprint_path, manifest_path = await _fixture_files(tmp_path, approval=ApprovalStatus.APPROVED)
-    graph = build_sprint3_graph(
+    graph = build_render_graph(
         design_generator=FakeDesignGenerator(),
         layout_refiner=RetryLayoutRefiner(),
         image_generator=FakeImageGenerator(),
@@ -655,7 +655,7 @@ async def test_sprint3_retries_when_every_background_is_contaminated(tmp_path: P
         checkpointer=InMemorySaver(),
     )
     result = cast(
-        Sprint3State,
+        renderState,
         await graph.ainvoke(
             {
                 "workflow_version": "3.0",
@@ -677,11 +677,11 @@ async def test_sprint3_retries_when_every_background_is_contaminated(tmp_path: P
     assert result["final_poster_path"].parent.name == "final"
 
 
-async def test_sprint3_preserves_original_artwork_after_background_attempts_are_exhausted(
+async def test_render_preserves_original_artwork_after_background_attempts_are_exhausted(
     tmp_path: Path,
 ) -> None:
     blueprint_path, manifest_path = await _fixture_files(tmp_path, approval=ApprovalStatus.APPROVED)
-    graph = build_sprint3_graph(
+    graph = build_render_graph(
         design_generator=FakeDesignGenerator(),
         layout_refiner=AlwaysFailLayoutRefiner(),
         image_generator=FakeImageGenerator(),
@@ -691,7 +691,7 @@ async def test_sprint3_preserves_original_artwork_after_background_attempts_are_
         checkpointer=InMemorySaver(),
     )
     result = cast(
-        Sprint3State,
+        renderState,
         await graph.ainvoke(
             {
                 "workflow_version": "3.0",

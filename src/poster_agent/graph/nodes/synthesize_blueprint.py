@@ -1,10 +1,10 @@
 """Deterministically combine independent proposals into a creative blueprint."""
 
 from poster_agent.domain.blueprint import CreativeBlueprint
-from poster_agent.graph.sprint2_state import Sprint2State
+from poster_agent.graph.rag_state import ragState
 
 
-def synthesize_blueprint(state: Sprint2State) -> Sprint2State:
+def synthesize_blueprint(state: ragState) -> ragState:
     context = state["context_bundle"]
     seen: set[str] = set()
     evidence = []

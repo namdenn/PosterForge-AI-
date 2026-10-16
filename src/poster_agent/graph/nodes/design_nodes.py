@@ -12,13 +12,13 @@ from poster_agent.domain.render import (
     RenderPlan,
     SceneLayer,
 )
-from poster_agent.graph.sprint3_state import Sprint3State
+from poster_agent.graph.render_state import renderState
 from poster_agent.llm.design_gateway import DesignGenerator
 
-GraphNode = Callable[[Sprint3State], Coroutine[Any, Any, Sprint3State]]
+GraphNode = Callable[[renderState], Coroutine[Any, Any, renderState]]
 
 
-def begin_design_attempt(state: Sprint3State) -> Sprint3State:
+def begin_design_attempt(state: renderState) -> renderState:
     return {
         "design_attempt": state.get("design_attempt", 0) + 1,
         "render_attempt": 0,
@@ -27,7 +27,7 @@ def begin_design_attempt(state: Sprint3State) -> Sprint3State:
 
 
 def make_territory_director(generator: DesignGenerator) -> GraphNode:
-    async def territory_director(state: Sprint3State) -> Sprint3State:
+    async def territory_director(state: renderState) -> renderState:
         metadata_items = []
         feedback: list[str] | None = None
         for _ in range(2):
@@ -55,7 +55,7 @@ def make_territory_director(generator: DesignGenerator) -> GraphNode:
 
 
 def make_concept_agent(*, index: int, generator: DesignGenerator) -> GraphNode:
-    async def concept_agent(state: Sprint3State) -> Sprint3State:
+    async def concept_agent(state: renderState) -> renderState:
         if index >= state["render_config"].variant_count:
             if index == 0:
                 return {"concept_a": None}
@@ -92,7 +92,7 @@ def make_concept_agent(*, index: int, generator: DesignGenerator) -> GraphNode:
                 feedback = [str(exc)]
         if last_error is not None:
             raise last_error
-        result: Sprint3State = {"design_generation_metadata": metadata_items}
+        result: renderState = {"design_generation_metadata": metadata_items}
         if index == 0:
             result["concept_a"] = concept
         elif index == 1:
@@ -104,7 +104,7 @@ def make_concept_agent(*, index: int, generator: DesignGenerator) -> GraphNode:
     return concept_agent
 
 
-def join_design_concepts(state: Sprint3State) -> Sprint3State:
+def join_design_concepts(state: renderState) -> renderState:
     concepts = [
         item
         for item in (state.get("concept_a"), state.get("concept_b"), state.get("concept_c"))
@@ -137,7 +137,7 @@ def join_design_concepts(state: Sprint3State) -> Sprint3State:
     }
 
 
-def validate_concept(concept: DesignConcept, *, state: Sprint3State) -> None:
+def validate_concept(concept: DesignConcept, *, state: renderState) -> None:
     types = [layer.layer_type for layer in concept.layers]
     required = {"locked_logo", "headline", "call_to_action"}
     missing = sorted(required - set(types))
@@ -223,7 +223,7 @@ def validate_concept(concept: DesignConcept, *, state: Sprint3State) -> None:
         )
 
 
-def _validate_accent_words(concept: DesignConcept, *, state: Sprint3State) -> None:
+def _validate_accent_words(concept: DesignConcept, *, state: renderState) -> None:
     headline = state["brief"].headline or state["blueprint"].messaging.headline
     copy_by_type = {
         "headline": headline,
@@ -253,7 +253,7 @@ def _normalize_word(value: str) -> str:
     return re.sub(r"^\W+|\W+$", "", value, flags=re.UNICODE).casefold()
 
 
-def _measure_diversity(concepts: list[DesignConcept], *, state: Sprint3State) -> DiversityReport:
+def _measure_diversity(concepts: list[DesignConcept], *, state: renderState) -> DiversityReport:
     if len(concepts) == 1:
         return DiversityReport(passed=True, score=100)
     issues: list[str] = []

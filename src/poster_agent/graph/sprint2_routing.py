@@ -3,12 +3,12 @@
 from typing import Literal
 
 from poster_agent.domain.enums import RiskSeverity
-from poster_agent.graph.sprint2_state import Sprint2State
+from poster_agent.graph.rag_state import ragState
 
 ReviewRoute = Literal["save", "retry"]
 
 
-def route_after_reviews(state: Sprint2State) -> ReviewRoute:
+def route_after_reviews(state: ragState) -> ReviewRoute:
     if not state.get("review_errors"):
         return "save"
     reports = [

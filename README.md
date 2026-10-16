@@ -1,6 +1,6 @@
 # Poster Agent Backend
 
-Terminal-first enterprise poster workflow. Sprint 3.5 is the active workflow:
+(First Version) Terminal-first enterprise poster workflow:
 
 - tenant-scoped brand ingestion for Markdown, text, JSON, and PDF;
 - OpenAI embeddings persisted in a local SQLite vector store;
@@ -19,9 +19,6 @@ Terminal-first enterprise poster workflow. Sprint 3.5 is the active workflow:
 - agent-directed typography rendered deterministically for exact campaign copy;
 - parallel brand, content, layout, technical, and vision QA;
 - bounded render revision, checkpoints, human approval, and final PNG output.
-
-Sprint 2 creates approved RAG-grounded copy and strategy. Sprint 3.5 turns it into three autonomous
-creative concepts and a reviewed poster.
 
 ## Setup
 
@@ -42,7 +39,7 @@ OPENAI_IMAGE_MODEL=gpt-image-2.5-flare
 
 The embedding model has a safe default in code, so existing `.env` files continue to work.
 
-## Run Sprint 3
+## Run
 
 Prepare an approved transparent logo and optional product PNG as described in
 `examples/assets/acme-coffee/README.md`, then copy and update the example manifest:
@@ -71,7 +68,7 @@ poster-agent render run `
 
 See `docs/SPRINT_03_GRAPH.md` for the graph, output tree, QA rules, resume, and approval commands.
 
-## Run Sprint 2
+## Run RAG for brand knowledge
 
 First ingest brand knowledge:
 
@@ -138,8 +135,8 @@ python -m pytest -q
 
 ## Documentation
 
-- `docs/SPRINT_01.md`: completed baseline workflow.
-- `docs/SPRINT_02_GRAPH.md`: active RAG and multi-parallel workflow.
+- `docs/Overall.md`: completed baseline workflow.
+- `docs/RAG_and_multi-parallel-workflow.md`: active RAG and multi-parallel workflow.
 - `docs/SPRINT_03_GRAPH.md`: active autonomous composition, brand locking, and QA workflow.
 - `docs/PROJECT_STRUCTURE.md`: responsibility of every source folder and module.
 - `docs/BLOCK_COMMUNICATION.md`: typed boundary rules.
