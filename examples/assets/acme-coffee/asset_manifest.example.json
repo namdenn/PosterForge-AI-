@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "tenant_id": "demo-company",
+  "brand_id": "acme-coffee",
+  "assets": [
+    {
+      "asset_id": "acme-logo-primary",
+      "asset_type": "logo",
+      "path": "logos/acme-logo.png",
+      "version": "1.0",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Approved transparent Acme Coffee logo"
+    },
+    {
+      "asset_id": "acme-citrus-cold-brew-product",
+      "asset_type": "product",
+      "path": "products/acme-citrus-cold-brew.png",
+      "version": "1.0",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Approved transparent product cutout"
+    }
+  ]
+}

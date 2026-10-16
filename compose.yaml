@@ -1,0 +1,23 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: poster-agent-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-poster_agent}
+      POSTGRES_USER: ${POSTGRES_USER:-poster_agent}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me_before_shared_use}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - poster_agent_postgres_data:/var/lib/postgresql/data
+      - ./database/postgres/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-poster_agent} -d ${POSTGRES_DB:-poster_agent}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  poster_agent_postgres_data:
+

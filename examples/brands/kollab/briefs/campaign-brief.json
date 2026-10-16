@@ -1,0 +1,34 @@
+{
+  "tenant_id": "kollab-company",
+  "campaign_id": "kollab-company-overview-2026",
+  "brand_id": "kollab",
+  "campaign_name": "Tổng quan về doanh nghiệp Kollab",
+  "objective": "awareness",
+  "product_name": "Nền tảng Kollab",
+  "product_description": "Kollab là nền tảng kết nối thương hiệu với Creator, KOL và KOC, hỗ trợ các hoạt động tìm kiếm, mời, trao đổi và quản lý campaign trong một workflow tập trung.",
+  "target_audience": [
+    "Đội ngũ marketing và quản lý thương hiệu đang tìm Creator cho chiến dịch",
+    "Agency và campaign manager cần quản lý hoạt động hợp tác với Creator",
+    "Creator, KOL và KOC đang tìm kiếm cơ hội hợp tác với thương hiệu"
+  ],
+  "channel": "instagram",
+  "language": "vi",
+  "call_to_action": "Khám phá Kollab tại appkollab.com",
+  "constraints": [
+    "Không tự tạo số liệu về người dùng, Creator, thương hiệu, campaign hoặc hiệu suất",
+    "Không dùng tên, số liệu, testimonial hoặc ngân sách xuất hiện trong poster cũ",
+    "Không hứa hẹn kết quả chiến dịch hoặc tốc độ tìm Creator khi chưa có bằng chứng",
+    "Không để AI tái tạo hoặc biến dạng logo Kollab",
+    "Không đưa quá nhiều chữ nhỏ; ưu tiên khả năng đọc trên thiết bị di động"
+  ],
+  "mandatory_elements": [
+    "Chủ đề chính: Tổng quan về doanh nghiệp Kollab",
+    "Headline: Kollab – Kết nối thương hiệu và nhà sáng tạo",
+    "Thông điệp: Tìm kiếm và lưu Creator phù hợp",
+    "Thông điệp: Mời, trao đổi và quản lý campaign trên một nền tảng",
+    "Thông điệp: Creator có thể khám phá cơ hội hợp tác với thương hiệu",
+    "CTA chính xác: Khám phá Kollab tại appkollab.com",
+    "Logo Kollab nguyên bản",
+    "Sử dụng nhận diện xanh dương và gradient xanh–tím"
+  ]
+}

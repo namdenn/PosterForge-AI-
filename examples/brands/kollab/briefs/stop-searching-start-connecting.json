@@ -1,0 +1,40 @@
+{
+  "tenant_id": "kollab-company",
+  "campaign_id": "kollab-stop-searching-start-connecting-2026",
+  "brand_id": "kollab",
+  "campaign_name": "Stop Searching. Start Connecting.",
+  "objective": "awareness",
+  "product_name": "Kollab Platform",
+  "product_description": "Kollab is a platform that helps brands discover, save, invite, and collaborate with Creators, KOLs, and KOCs through a focused campaign workflow.",
+  "target_audience": [
+    "Brand and marketing teams looking for suitable Creators",
+    "Agencies and campaign managers coordinating Creator partnerships",
+    "Creators seeking relevant opportunities with brands"
+  ],
+  "channel": "instagram",
+  "language": "en",
+  "headline": "Stop searching. Start connecting.",
+  "call_to_action": "Connect with the right Creators at appkollab.com",
+  "support_copy_policy": {
+    "min_items": 1,
+    "max_items": 4,
+    "max_words_per_item": 12,
+    "allowed_angles": [
+      "creator discovery",
+      "meaningful brand-creator connection",
+      "campaign collaboration",
+      "workflow simplicity"
+    ],
+    "must_be_grounded_in_rag": true
+  },
+  "constraints": [
+    "Do not invent user, Creator, brand, campaign, reach, engagement, or performance figures",
+    "Do not reuse names, testimonials, budgets, ratings, or deadlines from previous posters",
+    "Do not promise guaranteed campaign results or a specific Creator discovery speed",
+    "Do not let AI recreate, redraw, or distort the Kollab logo",
+    "Keep all copy concise and readable on an Instagram mobile screen"
+  ],
+  "mandatory_elements": [
+    "Use the original approved Kollab logo without changing its color, shape, proportions, or orientation"
+  ]
+}

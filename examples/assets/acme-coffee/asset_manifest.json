@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "tenant_id": "demo-company",
+  "brand_id": "acme-coffee",
+  "assets": [
+    {
+      "asset_id": "acme-logo-primary",
+      "asset_type": "logo",
+      "path": "logos/acme-logo.png",
+      "version": "demo-generated-1.0",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Generated Acme Coffee demo logo for local Sprint 3 testing; not an official corporate asset"
+    },
+    {
+      "asset_id": "acme-citrus-cold-brew-product",
+      "asset_type": "product",
+      "path": "products/acme-citrus-cold-brew.png",
+      "version": "demo-generated-1.0",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Generated Acme Citrus Cold Brew demo cutout for local Sprint 3 testing; not an official corporate asset"
+    }
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "tenant_id": "kollab-company",
+  "brand_id": "kollab",
+  "brand_tokens": {
+    "colors": {
+      "brand_blue": "#2463EB",
+      "light_blue": "#2F80ED",
+      "brand_purple": "#A020F0",
+      "ink": "#090B18",
+      "white": "#FFFFFF"
+    },
+    "gradients": [
+      ["#2463EB", "#A020F0"]
+    ],
+    "heading_font_asset_id": null,
+    "body_font_asset_id": null,
+    "minimum_logo_width_ratio": 0.12,
+    "logo_clear_space_ratio": 0.025
+  },
+  "assets": [
+    {
+      "asset_id": "kollab-primary-logo",
+      "asset_type": "logo",
+      "path": "logos/primary-logo.png",
+      "version": "1.1",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Kollab K logo extracted from the supplied source as a transparent PNG for deterministic composition."
+    },
+    {
+      "asset_id": "kollab-reference-track-record",
+      "asset_type": "reference",
+      "path": "references/poster-001-track-record.jpg",
+      "version": "1.0",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Previous Kollab post showing Creator track record and campaign cards."
+    },
+    {
+      "asset_id": "kollab-reference-brand-intro",
+      "asset_type": "reference",
+      "path": "references/poster-002-brand-intro.jpg",
+      "version": "1.0",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Minimal Kollab brand introduction with logo, tagline and website."
+    },
+    {
+      "asset_id": "kollab-reference-platform-features",
+      "asset_type": "reference",
+      "path": "references/poster-003-platform-features.jpg",
+      "version": "1.0",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Previous Kollab post summarizing the platform workflow and features."
+    },
+    {
+      "asset_id": "kollab-reference-creator-search",
+      "asset_type": "reference",
+      "path": "references/poster-004-creator-search.jpg",
+      "version": "1.0",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Previous Kollab problem-solution post about finding and inviting Creators."
+    },
+    {
+      "asset_id": "kollab-reference-brand-deals",
+      "asset_type": "reference",
+      "path": "references/poster-005-brand-deals.jpg",
+      "version": "1.0",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Previous Kollab post for Creators discovering brand campaigns."
+    },
+    {
+      "asset_id": "kollab-platform-ui",
+      "asset_type": "product",
+      "path": "products/kollab-platform-ui.png",
+      "version": "1.0",
+      "approval_status": "approved",
+      "allowed_channels": ["instagram"],
+      "description": "Transparent illustrative creator-platform UI mockup derived from the supplied Kollab references; contains no readable user or campaign data and is not represented as an exact product screenshot."
+    }
+  ]
+}

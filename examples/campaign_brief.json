@@ -1,0 +1,24 @@
+{
+  "tenant_id": "demo-company",
+  "campaign_id": "summer-launch-2026",
+  "brand_id": "acme-coffee",
+  "campaign_name": "Ra mắt Cold Brew mùa hè",
+  "objective": "conversion",
+  "product_name": "Acme Citrus Cold Brew",
+  "product_description": "Cold brew vị cam nhẹ dành cho người trẻ làm việc tại thành phố.",
+  "target_audience": [
+    "Nhân viên văn phòng 22-35 tuổi",
+    "Người yêu thích cà phê ít ngọt"
+  ],
+  "channel": "instagram",
+  "language": "vi",
+  "call_to_action": "Đặt thử ngay hôm nay",
+  "constraints": [
+    "Không đưa ra tuyên bố có lợi cho sức khỏe",
+    "Không tự tạo giá bán"
+  ],
+  "mandatory_elements": [
+    "Logo Acme Coffee",
+    "Hình ảnh sản phẩm"
+  ]
+}

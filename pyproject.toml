@@ -1,0 +1,76 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "poster-agent"
+version = "0.6.0"
+description = "Agentic RAG, creative blueprint, and brand-safe poster rendering backend"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "aiosqlite",
+    "alembic",
+    "langgraph",
+    "langgraph-checkpoint-sqlite",
+    "langgraph-checkpoint-postgres",
+    "llama-index-core",
+    "llama-index-embeddings-openai",
+    "llama-index-llms-openai",
+    "llama-index-readers-file",
+    "openai",
+    "pillow",
+    "psycopg[binary,pool]",
+    "pydantic>=2",
+    "pydantic-settings",
+    "pypdf",
+    "python-dotenv",
+    "rich",
+    "sqlalchemy>=2",
+    "structlog",
+    "tenacity",
+    "typer",
+]
+
+[project.scripts]
+poster-agent = "poster_agent.cli:app"
+
+[project.optional-dependencies]
+dev = [
+    "mypy",
+    "pre-commit",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-cov",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+poster_agent = ["prompts/*.md"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+markers = [
+    "integration: tests that use infrastructure",
+    "smoke: tests that may call an external API",
+]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src", "tests"]
+
+[tool.coverage.run]
+source = ["poster_agent"]
+branch = true
